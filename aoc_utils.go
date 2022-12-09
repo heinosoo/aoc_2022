@@ -1,6 +1,7 @@
 package aoc_utils
 
 import (
+	"fmt"
 	"os"
 
 	"golang.org/x/exp/constraints"
@@ -88,4 +89,9 @@ func InitializeMatrix[T any](value T, M, N int) (matrix [][]T) {
 		}
 	}
 	return
+}
+
+func WaitForInput() {
+	var wait string
+	fmt.Scanln(&wait)
 }
