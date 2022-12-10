@@ -4,8 +4,8 @@ import (
 	. "github.com/heinosoo/aoc_2022"
 )
 
-func part2(lines chan string) {
-	buffer := make(chan [2]int, 10)
+func part2(lines Channel[string]) {
+	buffer := NewChannel[[2]int](10)
 	go parseCommands(lines, buffer)
 
 	line := ""

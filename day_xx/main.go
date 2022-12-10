@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	lines1, lines2 := make(chan string, 10), make(chan string, 10)
+	lines1, lines2 := NewChannel[string](10), NewChannel[string](10)
 	go ReadFile(GetFilename(), lines1)
 	go ReadFile(GetFilename(), lines2)
 

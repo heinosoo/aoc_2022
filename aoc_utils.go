@@ -123,3 +123,45 @@ func InitializeMatrix[T any](value T, M, N int) (matrix [][]T) {
 	}
 	return
 }
+
+type Channel[T any] chan T
+
+func NewChannel[T any](buffer int) Channel[T] {
+	return make(chan T, buffer)
+}
+
+func (input Channel[T]) Filter(f func(T) bool) (output Channel[T]) {
+	output = make(chan T, 10)
+	go func() {
+		for a := range input {
+			if f(a) {
+				output <- a
+			}
+
+		}
+		close(output)
+	}()
+	return
+}
+
+func (input Channel[T]) Map(f func(T) T) (output Channel[T]) {
+	output = make(chan T, 10)
+	go func() {
+		for a := range input {
+			output <- f(a)
+		}
+		close(output)
+	}()
+	return
+}
+
+func (input Channel[T]) Reduce(f func(T, T) T) (a T) {
+	more := false
+	a, more = <-input
+	if more {
+		for b := range input {
+			a = f(a, b)
+		}
+	}
+	return
+}

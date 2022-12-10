@@ -7,18 +7,18 @@ import (
 	. "github.com/heinosoo/aoc_2022"
 )
 
-func part1(lines chan string) {
-	buffer := make(chan [2]int, 10)
+func part1(lines Channel[string]) {
+	buffer := NewChannel[[2]int](10)
 	go parseCommands(lines, buffer)
+	buffer = buffer.Filter(func(state [2]int) bool { return (state[0]+20)%40 == 0 })
 
 	answer := 0
 	for state := range buffer {
-		if (state[0]+20)%40 == 0 {
-			answer += state[0] * state[1]
-		}
+		answer += state[0] * state[1]
 	}
 
 	Log(answer)
+
 }
 
 func parseCommands(lines chan string, buffer chan [2]int) {
