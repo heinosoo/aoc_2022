@@ -1,9 +1,9 @@
 package main
 
-func part2(filename string) int {
-	// file, _ := os.Open(filename)
-	// defer file.Close()
-	// scanner := bufio.NewScanner(file)
+import (
+	. "github.com/heinosoo/aoc_2022"
+)
 
-	return 0
+func part2(lines chan string) {
+	Log("Part 2:")
 }

@@ -1,43 +1,38 @@
 package main
 
 import (
-	"bufio"
-	"os"
 	"strconv"
 	"strings"
+
+	. "github.com/heinosoo/aoc_2022"
 )
 
-func part1(filename string) int {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func part1(lines chan string) {
+	Log("Part 1:")
 
 	buffer := make(chan [2]int, 10)
-	go parseCommands(scanner, buffer)
+	go parseCommands(lines, buffer)
 
 	answer := 0
-	for {
-		state, more := <-buffer
-		if !more {
-			break
-		} else if more && ((state[0]+20)%40 == 0) {
+	for state := range buffer {
+		if (state[0]+20)%40 == 0 {
 			answer += state[0] * state[1]
 		}
 	}
 
-	return answer
+	Log(answer)
 }
 
-func parseCommands(scanner *bufio.Scanner, buffer chan [2]int) {
+func parseCommands(lines chan string, buffer chan [2]int) {
 	state := [2]int{0, 1}
 	state = noop(buffer, state)
-	for scanner.Scan() {
-		line := strings.Split(scanner.Text(), " ")
-		switch line[0] {
+	for line := range lines {
+		lineSplit := strings.Split(line, " ")
+		switch lineSplit[0] {
 		case "noop":
 			state = noop(buffer, state)
 		case "addx":
-			a, _ := strconv.Atoi(line[1])
+			a, _ := strconv.Atoi(lineSplit[1])
 			state = noop(buffer, state)
 			state = addx(buffer, state, a)
 		}

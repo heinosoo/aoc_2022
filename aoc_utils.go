@@ -1,11 +1,21 @@
 package aoc_utils
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
 	"golang.org/x/exp/constraints"
 )
+
+func Log(message ...any) {
+	fmt.Println(message...)
+}
+
+func WaitForInput() {
+	var wait string
+	fmt.Scanln(&wait)
+}
 
 func GetFilename() string {
 	if len(os.Args) > 1 {
@@ -13,6 +23,22 @@ func GetFilename() string {
 	} else {
 		return "input"
 	}
+}
+
+func ReadFile(filename string, buffer chan string) {
+	file, e := os.Open(filename)
+	if e != nil {
+		panic(e)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		buffer <- scanner.Text()
+	}
+	close(buffer)
+
+	return
 }
 
 func Min[T constraints.Ordered](a, b T) T {
@@ -89,9 +115,4 @@ func InitializeMatrix[T any](value T, M, N int) (matrix [][]T) {
 		}
 	}
 	return
-}
-
-func WaitForInput() {
-	var wait string
-	fmt.Scanln(&wait)
 }

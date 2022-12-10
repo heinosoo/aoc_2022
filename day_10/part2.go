@@ -1,34 +1,25 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
+	. "github.com/heinosoo/aoc_2022"
 )
 
-func part2(filename string) int {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func part2(lines chan string) {
+	Log("Part 2:")
 
 	buffer := make(chan [2]int, 10)
-	go parseCommands(scanner, buffer)
+	go parseCommands(lines, buffer)
 
 	line := ""
-	for {
-		state, more := <-buffer
-		if !more {
-			break
-		} else if (state[0])%40 == 0 {
+	for state := range buffer {
+		if (state[0])%40 == 0 {
 			line += pixel(state)
-			fmt.Println(line)
+			Log(line)
 			line = ""
 		} else {
 			line += pixel(state)
 		}
 	}
-
-	return 1
 }
 
 func pixel(state [2]int) string {
