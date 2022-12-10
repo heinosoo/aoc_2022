@@ -7,7 +7,6 @@ import (
 )
 
 func part2(lines chan string) {
-	Log("Part 2:")
 	visited := map[[2]int]bool{{0, 0}: true}
 	var knots [10][2]int
 	for line := range lines {

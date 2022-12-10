@@ -7,8 +7,6 @@ import (
 )
 
 func part1(lines chan string) {
-	Log("Part 1:")
-
 	forest := readForest(lines)
 	hidden := scanHidden(forest)
 

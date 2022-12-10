@@ -4,18 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"golang.org/x/exp/constraints"
 )
-
-func Log(message ...any) {
-	fmt.Println(message...)
-}
-
-func WaitForInput() {
-	var wait string
-	fmt.Scanln(&wait)
-}
 
 func GetFilename() string {
 	if len(os.Args) > 1 {
@@ -39,6 +31,21 @@ func ReadFile(filename string, buffer chan string) {
 	close(buffer)
 
 	return
+}
+
+func Log(message ...any) {
+	fmt.Println(message...)
+}
+
+func WaitForInput() {
+	var wait string
+	fmt.Scanln(&wait)
+}
+
+func WithTiming(prefix string, doSomething func()) {
+	t := time.Now()
+	doSomething()
+	Log(prefix, time.Since(t))
 }
 
 func Min[T constraints.Ordered](a, b T) T {

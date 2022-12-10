@@ -5,8 +5,6 @@ import (
 )
 
 func part2(lines chan string) {
-	Log("Part 2:")
-
 	buffer := make(chan [2]int, 10)
 	go parseCommands(lines, buffer)
 

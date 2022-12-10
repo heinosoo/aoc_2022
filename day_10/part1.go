@@ -8,8 +8,6 @@ import (
 )
 
 func part1(lines chan string) {
-	Log("Part 1:")
-
 	buffer := make(chan [2]int, 10)
 	go parseCommands(lines, buffer)
 

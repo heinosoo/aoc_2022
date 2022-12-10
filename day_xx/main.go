@@ -9,6 +9,7 @@ func main() {
 	go ReadFile(GetFilename(), lines1)
 	go ReadFile(GetFilename(), lines2)
 
-	part1(lines1)
-	part2(lines2)
+	WithTiming("Part 1 finished:", func() { part1(lines1) })
+	Log()
+	WithTiming("Part 2 finished:", func() { part2(lines2) })
 }

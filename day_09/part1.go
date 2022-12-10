@@ -8,7 +8,6 @@ import (
 )
 
 func part1(lines chan string) {
-	Log("Part 1:")
 	visited := map[[2]int]bool{{0, 0}: true}
 	head, tail := [2]int{0, 0}, [2]int{0, 0}
 	for line := range lines {
