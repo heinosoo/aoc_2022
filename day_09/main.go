@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
-
-	aoc_utils "github.com/heinosoo/aoc_2022"
+	. "github.com/heinosoo/aoc_2022"
 )
 
 func main() {
-	filename := aoc_utils.GetFilename()
-	fmt.Println("Part 1: ", part1(filename))
-	fmt.Println("Part 2: ", part2(filename))
+	lines1, lines2 := make(chan string, 10), make(chan string, 10)
+	go ReadFile(GetFilename(), lines1)
+	go ReadFile(GetFilename(), lines2)
+
+	part1(lines1)
+	part2(lines2)
 }

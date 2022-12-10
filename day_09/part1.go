@@ -1,28 +1,25 @@
 package main
 
 import (
-	"bufio"
-	"os"
 	"strconv"
 	"strings"
+
+	. "github.com/heinosoo/aoc_2022"
 )
 
-func part1(filename string) int {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-
+func part1(lines chan string) {
+	Log("Part 1:")
 	visited := map[[2]int]bool{{0, 0}: true}
 	head, tail := [2]int{0, 0}, [2]int{0, 0}
-	for scanner.Scan() {
-		dir, n := parseLine(scanner.Text())
+	for line := range lines {
+		dir, n := parseLine(line)
 		for i := 0; i < n; i++ {
 			update(&head, &tail, dir)
 			visited[tail] = true
 		}
 	}
 
-	return len(visited)
+	Log(len(visited))
 }
 
 func parseLine(line string) (dir byte, n int) {

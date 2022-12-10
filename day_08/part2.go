@@ -1,31 +1,26 @@
 package main
 
 import (
-	"bufio"
-	"os"
-
-	aoc_utils "github.com/heinosoo/aoc_2022"
+	. "github.com/heinosoo/aoc_2022"
 )
 
-func part2(filename string) int {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+func part2(lines chan string) {
+	Log("Part 2:")
 
-	forest := readForest(scanner)
+	forest := readForest(lines)
 	score := scenicScore2(forest)
 
 	max := 0
-	aoc_utils.OperateOnMatrix(&score, func(a int) {
-		max = aoc_utils.Max(max, a)
+	OperateOnMatrix(&score, func(a int) {
+		max = Max(max, a)
 	})
 
-	return max
+	Log(max)
 }
 
 func scenicScore2(forest [][]int) (score [][]int) {
 	M, N := len(forest), len(forest[0])
-	score = aoc_utils.InitializeMatrix(1, M, N)
+	score = InitializeMatrix(1, M, N)
 	for H := range [9]int{1, 2, 3, 4, 5, 6, 7, 8, 9} {
 		for m := 0; m < M; m++ {
 			score[m][0], score[m][N-1] = 0, 0

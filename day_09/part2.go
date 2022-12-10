@@ -1,32 +1,26 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 
-	aoc_utils "github.com/heinosoo/aoc_2022"
+	. "github.com/heinosoo/aoc_2022"
 )
 
-func part2(filename string) int {
-	file, _ := os.Open(filename)
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-
+func part2(lines chan string) {
+	Log("Part 2:")
 	visited := map[[2]int]bool{{0, 0}: true}
 	var knots [10][2]int
-
-	for scanner.Scan() {
-		dir, n := parseLine(scanner.Text())
+	for line := range lines {
+		dir, n := parseLine(line)
 		for i := 0; i < n; i++ {
 			knots = update2(knots, dir)
 			visited[knots[9]] = true
-			printPicture(knots, visited)
+			// printPicture(knots, visited)
 		}
 
 	}
 	// printPicture(knots, visited)
-	return len(visited)
+	Log(len(visited))
 }
 
 func update2(knots [10][2]int, dir byte) [10][2]int {
@@ -93,8 +87,8 @@ func printPicture(knots [10][2]int, visited map[[2]int]bool) {
 
 	}
 	for _, line := range picture {
-		fmt.Println(line)
+		Log(line)
 	}
-	fmt.Println()
-	aoc_utils.WaitForInput()
+	Log()
+	WaitForInput()
 }
