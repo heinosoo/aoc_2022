@@ -131,7 +131,7 @@ func NewChannel[T any](buffer int) Channel[T] {
 }
 
 func (input Channel[T]) Filter(f func(T) bool) (output Channel[T]) {
-	output = make(chan T, 10)
+	output = NewChannel[T](10)
 	go func() {
 		for a := range input {
 			if f(a) {
@@ -145,7 +145,7 @@ func (input Channel[T]) Filter(f func(T) bool) (output Channel[T]) {
 }
 
 func (input Channel[T]) Map(f func(T) T) (output Channel[T]) {
-	output = make(chan T, 10)
+	output = NewChannel[T](10)
 	go func() {
 		for a := range input {
 			output <- f(a)
@@ -164,4 +164,30 @@ func (input Channel[T]) Reduce(f func(T, T) T) (a T) {
 		}
 	}
 	return
+}
+
+type Channels[T any] chan chan T
+
+func NewChannels[T any](buffer int) Channels[T] {
+	return make(chan chan T, buffer)
+}
+
+func (input Channel[T]) Split(f func(T) bool) Channels[T] {
+	output := NewChannels[T](10)
+	go func() {
+		current := NewChannel[T](10)
+		for a := range input {
+			if f(a) {
+				close(current)
+				output <- current
+				current = NewChannel[T](10)
+			} else {
+				current <- a
+			}
+		}
+		close(current)
+		output <- current
+		close(output)
+	}()
+	return output
 }
