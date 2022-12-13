@@ -130,6 +130,17 @@ func NewChannel[T any](buffer int) Channel[T] {
 	return make(chan T, buffer)
 }
 
+func NewChannelFromSlice[T any](input []T, buffer int) Channel[T] {
+	channel := NewChannel[T](buffer)
+	go func() {
+		for _, a := range input {
+			channel <- a
+		}
+		close(channel)
+	}()
+	return channel
+}
+
 func (input Channel[T]) Filter(f func(T) bool) (output Channel[T]) {
 	output = NewChannel[T](10)
 	go func() {
