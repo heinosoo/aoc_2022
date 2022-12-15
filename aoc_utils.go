@@ -48,6 +48,14 @@ func WithTiming(prefix string, doSomething func()) {
 	Log(prefix, time.Since(t))
 }
 
+func Abs(a int) int {
+	if a > 0 {
+		return a
+	} else {
+		return -a
+	}
+}
+
 func Min[T constraints.Ordered](a, b T) T {
 	if a < b {
 		return a
