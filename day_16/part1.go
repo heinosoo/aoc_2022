@@ -17,39 +17,102 @@ type valve struct {
 
 func part1(lines Channel[string]) {
 	V := readValves(lines)
-	open := make(map[string]bool)
-	for label, v := range V {
-		if v.rate == 0 {
-			open[label] = true
-		}
-	}
-
-	cache := make(map[string]int)
-	maxRelease := tick("AA", "AA", open, V, 0, 30, 0, cache)
+	maxRelease := runTickers(30, 0, V)
 	Log(maxRelease)
 }
 
-func tick(guyA, guyB string, open map[string]bool, V valves, released, timeLeftA, timeLeftB int, cache map[string]int) int {
-	cacheKey := string(released) + string(timeLeftA) + string(timeLeftB) // Fingers crossed here. : p
-	if cache[cacheKey] != 0 {
-		return cache[cacheKey]
-	}
-	max := MaxF(0)
-	for next, distance := range V[guyA].path {
-		if open[next] {
-			continue
+type cacheReadType struct {
+	key     string
+	outChan chan int
+}
+type cacheWriteType struct {
+	key string
+	val int
+}
+
+func createCache() (reader func(key string) int, writer func(key string, val int)) {
+	cache := make(map[string]int)
+	readChan, writeChan := make(chan cacheReadType, 10), make(chan cacheWriteType, 10)
+	go func() {
+		for {
+			select {
+			case w := <-writeChan:
+				cache[w.key] = w.val
+			case r := <-readChan:
+				r.outChan <- cache[r.key]
+				close(r.outChan)
+			}
 		}
-		time := distance + 1
-		if timeLeftA > time {
-			nextReleased := released + V[next].rate*(timeLeftA-time)
-			open[next] = true
-			max(nextReleased, tick(next, guyB, open, V, nextReleased, timeLeftA-time, timeLeftB, cache))
-			max(nextReleased, tick(guyB, next, open, V, nextReleased, timeLeftB, timeLeftA-time, cache))
-			open[next] = false
+	}()
+
+	reader = func(key string) int {
+		cacheRead := cacheReadType{key, make(chan int)}
+		readChan <- cacheRead
+		return <-cacheRead.outChan
+	}
+	writer = func(key string, val int) {
+		cacheWrite := cacheWriteType{key, val}
+		writeChan <- cacheWrite
+	}
+
+	return
+}
+
+func copyClosed(closed map[string]bool) map[string]bool {
+	newClosed := make(map[string]bool)
+	for k, v := range closed {
+		if v {
+			newClosed[k] = true
 		}
 	}
-	cache[cacheKey] = max(0)
-	return max(0)
+	return newClosed
+}
+
+func runTickers(time1, time2 int, V valves) int {
+	reader, writer := createCache()
+	var tick func(guyA, guyB string, closed map[string]bool, released, timeLeftA, timeLeftB int, maxRelease chan int)
+	tick = func(guyA, guyB string, closed map[string]bool, released, timeLeftA, timeLeftB int, maxRelease chan int) {
+		cacheKey := string(released) + string(timeLeftA) + string(timeLeftB) // Fingers crossed here. : p
+		cacheVal := reader(cacheKey)
+		if cacheVal != 0 {
+			maxRelease <- cacheVal
+			return
+		}
+		max := MaxF(0)
+		for next, distance := range V[guyA].path {
+			if !closed[next] {
+				continue
+			}
+			time := distance + 1
+			if timeLeftA > time {
+				nextReleased := released + V[next].rate*(timeLeftA-time)
+				max1, max2 := make(chan int), make(chan int)
+				go func() {
+					newClosed := copyClosed(closed)
+					newClosed[next] = false
+					tick(next, guyB, newClosed, nextReleased, timeLeftA-time, timeLeftB, max1)
+				}()
+				go func() {
+					newClosed := copyClosed(closed)
+					newClosed[next] = false
+					tick(guyB, next, newClosed, nextReleased, timeLeftB, timeLeftA-time, max2)
+				}()
+				max(nextReleased, <-max1, <-max2)
+			}
+		}
+		writer(cacheKey, max(0))
+		maxRelease <- max(0)
+	}
+
+	initClosed := make(map[string]bool)
+	for label, v := range V {
+		if v.rate != 0 {
+			initClosed[label] = true
+		}
+	}
+	maxRelease := make(chan int)
+	go tick("AA", "AA", initClosed, 0, time1, time2, maxRelease)
+	return <-maxRelease
 }
 
 func readValves(lines Channel[string]) valves {
