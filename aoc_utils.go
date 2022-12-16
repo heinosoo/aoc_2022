@@ -70,6 +70,18 @@ func Max[T constraints.Ordered](a, b T) T {
 	return b
 }
 
+func MaxF[T constraints.Ordered](initial T) func(...T) T {
+	max := initial
+	return func(new ...T) T {
+		for _, a := range new {
+			if a > max {
+				max = a
+			}
+		}
+		return max
+	}
+}
+
 func MinOf[T constraints.Ordered](vars ...T) (T, int) {
 	min := vars[0]
 	i := 0
